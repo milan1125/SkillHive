@@ -47,7 +47,7 @@
 ## 🏗️ Tech Stack
 
 ### Frontend
-- **⚛️ React 18** - Modern UI library with hooks
+- **⚛️ React 18** - Modern Frontnend UI library with hooks
 - **🎨 Tailwind CSS** - Utility-first CSS framework
 - **🧩 Shadcn/ui** - Beautiful, accessible component library
 - **🔄 Redux Toolkit** - State management with RTK Query
