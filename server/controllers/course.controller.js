@@ -349,3 +349,186 @@ export const togglePublishCourse = async (req,res) => {
         })
     }
 }
+
+// Admin course management functions
+export const getAllCoursesForAdmin = async (req, res) => {
+    try {
+        const { page = 1, limit = 10, search = '', category = '', status = '' } = req.query;
+        const skip = (page - 1) * limit;
+
+        // Build search query
+        let query = {};
+        if (search) {
+            query.$or = [
+                { courseTitle: { $regex: search, $options: 'i' } },
+                { subTitle: { $regex: search, $options: 'i' } },
+                { category: { $regex: search, $options: 'i' } }
+            ];
+        }
+        if (category && category !== 'all') {
+            query.category = category;
+        }
+        if (status === 'published') {
+            query.isPublished = true;
+        } else if (status === 'draft') {
+            query.isPublished = false;
+        }
+
+        const courses = await Course.find(query)
+            .populate('creator', 'name email photoUrl')
+            .populate('enrolledStudents', 'name email')
+            .skip(skip)
+            .limit(parseInt(limit))
+            .sort({ createdAt: -1 });
+
+        const totalCourses = await Course.countDocuments(query);
+        const totalPages = Math.ceil(totalCourses / limit);
+
+        return res.status(200).json({
+            success: true,
+            courses,
+            pagination: {
+                currentPage: parseInt(page),
+                totalPages,
+                totalCourses,
+                hasNextPage: page < totalPages,
+                hasPrevPage: page > 1
+            },
+            message: "All courses retrieved successfully"
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to retrieve courses"
+        });
+    }
+};
+
+export const toggleCourseStatus = async (req, res) => {
+    try {
+        const { courseId } = req.params;
+        
+        const course = await Course.findById(courseId);
+        if (!course) {
+            return res.status(404).json({
+                success: false,
+                message: "Course not found"
+            });
+        }
+        
+        const updatedCourse = await Course.findByIdAndUpdate(
+            courseId,
+            { isPublished: !course.isPublished },
+            { new: true }
+        ).populate('creator', 'name email');
+        
+        return res.status(200).json({
+            success: true,
+            course: updatedCourse,
+            message: `Course ${updatedCourse.isPublished ? 'published' : 'unpublished'} successfully`
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to toggle course status"
+        });
+    }
+};
+
+export const deleteCourseByAdmin = async (req, res) => {
+    try {
+        const { courseId } = req.params;
+        
+        const course = await Course.findById(courseId).populate('lectures');
+        if (!course) {
+            return res.status(404).json({
+                success: false,
+                message: "Course not found"
+            });
+        }
+        
+        // Delete course thumbnail from cloudinary
+        if (course.courseThumbnail) {
+            const publicId = course.courseThumbnail.split("/").pop().split(".")[0];
+            await deleteMediaFromCloudinary(publicId);
+        }
+        
+        // Delete all lectures and their videos
+        if (course.lectures && course.lectures.length > 0) {
+            for (const lecture of course.lectures) {
+                if (lecture.videoUrl) {
+                    const publicId = lecture.videoUrl.split("/").pop().split(".")[0];
+                    await deleteVideoFromCloudinary(publicId);
+                }
+                await Lecture.findByIdAndDelete(lecture._id);
+            }
+        }
+        
+        await Course.findByIdAndDelete(courseId);
+        
+        return res.status(200).json({
+            success: true,
+            message: "Course and all associated content deleted successfully"
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to delete course"
+        });
+    }
+};
+
+export const getCourseStats = async (req, res) => {
+    try {
+        const totalCourses = await Course.countDocuments();
+        const publishedCourses = await Course.countDocuments({ isPublished: true });
+        const draftCourses = await Course.countDocuments({ isPublished: false });
+        
+        // Get course enrollment stats
+        const courseStats = await Course.aggregate([
+            {
+                $group: {
+                    _id: null,
+                    totalEnrollments: { $sum: { $size: "$enrolledStudents" } },
+                    averagePrice: { $avg: "$coursePrice" },
+                    totalRevenue: { 
+                        $sum: { 
+                            $multiply: ["$coursePrice", { $size: "$enrolledStudents" }] 
+                        } 
+                    }
+                }
+            }
+        ]);
+        
+        console.log(courseStats);
+        // Get top categories
+        const topCategories = await Course.aggregate([
+            { $group: { _id: "$category", count: { $sum: 1 } } },
+            { $sort: { count: -1 } },
+            { $limit: 5 }
+        ]);
+        
+        return res.status(200).json({
+            success: true,
+            stats: {
+                totalCourses,
+                publishedCourses,
+                draftCourses,
+                totalEnrollments: courseStats[0]?.totalEnrollments || 0,
+                averagePrice: courseStats[0]?.averagePrice || 0,
+                totalRevenue: courseStats[0]?.totalRevenue || 0,
+                topCategories
+            },
+            message: "Course statistics retrieved successfully"
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to retrieve course statistics"
+        });
+    }
+};

@@ -66,6 +66,20 @@ export const authApi = createApi({
                 body:formData,
                 credentials:"include"
             })
+        }),
+        requestInstructorRole: builder.mutation({
+            query: () => ({
+                url:"request-instructor",
+                method:"PUT"
+            }),
+            async onQueryStarted(_, {queryFulfilled, dispatch}) {
+                try {
+                    const result = await queryFulfilled;
+                    dispatch(userLoggedIn({user:result.data.user}));
+                } catch (error) {
+                    console.log(error);
+                }
+            }
         })
     })
 });
@@ -74,5 +88,6 @@ export const {
     useLoginUserMutation,
     useLogoutUserMutation,
     useLoadUserQuery,
-    useUpdateUserMutation
+    useUpdateUserMutation,
+    useRequestInstructorRoleMutation
 } = authApi;

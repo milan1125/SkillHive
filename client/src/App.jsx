@@ -2,28 +2,36 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./App.css";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
-import HeroSection from "./pages/student/HeroSection";
 import MainLayout from "./layout/MainLayout";
 import Courses from "./pages/student/Courses";
 import MyLearning from "./pages/student/MyLearning";
 import Profile from "./pages/student/Profile";
-import Sidebar from "./pages/admin/Sidebar";
-import Dashboard from "./pages/admin/Dashboard";
-import CourseTable from "./pages/admin/course/CourseTable";
-import AddCourse from "./pages/admin/course/AddCourse";
-import EditCourse from "./pages/admin/course/EditCourse";
-import CreateLecture from "./pages/admin/lecture/CreateLecture";
-import EditLecture from "./pages/admin/lecture/EditLecture";
+import Sidebar from "./pages/instructor/Sidebar";
+import Dashboard from "./pages/instructor/Dashboard";
+import CourseTable from "./pages/instructor/course/CourseTable";
+import AddCourse from "./pages/instructor/course/AddCourse";
+import EditCourse from "./pages/instructor/course/EditCourse";
+import CreateLecture from "./pages/instructor/lecture/CreateLecture";
+import EditLecture from "./pages/instructor/lecture/EditLecture";
 import CourseDetail from "./pages/student/CourseDetail";
 import CourseProgress from "./pages/student/CourseProgress";
 import SearchPage from "./pages/student/SearchPage";
+
 import {
   AdminRoute,
   AuthenticatedUser,
+  InstructorRoute,
   ProtectedRoute,
 } from "./components/ProtectedRoutes";
 import PurchaseCourseProtectedRoute from "./components/PurchaseCourseProtectedRoute";
 import { ThemeProvider } from "./components/ThemeProvider";
+import AdminSidebar from "./pages/admin/AdminSidebar";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUserManagement from "./pages/admin/AdminUserManagement";
+import AdminCourseManagement from "./pages/admin/AdminCourseManagement";
+import AdminSettings from "./pages/admin/AdminSettings";
+import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import AdminCourseDetails from "./pages/admin/AdminCourseDetails";
 
 const appRouter = createBrowserRouter([
   {
@@ -101,13 +109,13 @@ const appRouter = createBrowserRouter([
         ),
       },
 
-      // admin routes start from here
+      // instructor routes
       {
-        path: "admin",
+        path: "instructor",
         element: (
-          <AdminRoute>
+          <InstructorRoute>
             <Sidebar />
-          </AdminRoute>
+          </InstructorRoute>
         ),
         children: [
           {
@@ -133,6 +141,42 @@ const appRouter = createBrowserRouter([
           {
             path: "course/:courseId/lecture/:lectureId",
             element: <EditLecture />,
+          },
+        ],
+      },
+
+      // admin routes
+      {
+        path: "admin",
+        element: (
+          <AdminRoute>
+            <AdminSidebar />
+          </AdminRoute>
+        ),
+        children: [
+          {
+            path: "dashboard",
+            element: <AdminDashboard />,
+          },
+          {
+            path: "users",
+            element: <AdminUserManagement />,
+          },
+          {
+            path: "courses",
+            element: <AdminCourseManagement />,
+          },
+          {
+            path: "courses/:courseId/details",
+            element: <AdminCourseDetails />,
+          },
+          {
+            path: "analytics",
+            element: <AdminAnalytics />,
+          },
+          {
+            path: "settings",
+            element: <AdminSettings />,
           },
         ],
       },

@@ -172,9 +172,20 @@ const Navbar = () => {
                     <>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
-                        <Link to="/admin/dashboard" className="flex items-center gap-2">
+                        <Link to="/instructor/dashboard" className="flex items-center gap-2">
                           <BarChart3 className="h-4 w-4" />
                           Instructor Dashboard
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  {user?.role === "admin" && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link to="/admin/dashboard" className="flex items-center gap-2">
+                          <BarChart3 className="h-4 w-4" />
+                          Admin Dashboard
                         </Link>
                       </DropdownMenuItem>
                     </>
@@ -320,11 +331,23 @@ const MobileNavbar = ({ user, logoutHandler }) => {
                   {user?.role === "instructor" && (
                     <SheetClose asChild>
                       <Link
+                        to="/instructor/dashboard"
+                        className="flex items-center gap-3 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium"
+                      >
+                        <BarChart3 className="h-5 w-5" />
+                        Instructor Dashboard
+                      </Link>
+                    </SheetClose>
+                  )}
+                  
+                  {user?.role === "admin" && (
+                    <SheetClose asChild>
+                      <Link
                         to="/admin/dashboard"
                         className="flex items-center gap-3 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium"
                       >
                         <BarChart3 className="h-5 w-5" />
-                        Dashboard
+                        Admin Dashboard
                       </Link>
                     </SheetClose>
                   )}

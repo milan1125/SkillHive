@@ -27,6 +27,20 @@ export const AdminRoute = ({children}) => {
         return <Navigate to="/login"/>
     }
 
+    if(user?.role !== "admin"){
+        return <Navigate to="/courses"/>
+    }
+
+    return children;
+}
+
+export const InstructorRoute = ({children}) => {
+    const {user, isAuthenticated} = useSelector(store=>store.auth);
+
+    if(!isAuthenticated){
+        return <Navigate to="/login"/>
+    }
+
     if(user?.role !== "instructor"){
         return <Navigate to="/courses"/>
     }
