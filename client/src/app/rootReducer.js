@@ -7,7 +7,7 @@ import { courseProgressApi } from "@/features/api/courseProgressApi";
 import { userApi } from "@/features/api/userApi";
 import { adminApi } from "@/features/api/adminApi";
 
-const rootRedcuer = combineReducers({
+const rootReducer = combineReducers({
     [authApi.reducerPath]:authApi.reducer,
     [courseApi.reducerPath]:courseApi.reducer,
     [purchaseApi.reducerPath]:purchaseApi.reducer,
@@ -16,4 +16,4 @@ const rootRedcuer = combineReducers({
     [adminApi.reducerPath]:adminApi.reducer,
     auth:authReducer, 
 });
-export default rootRedcuer;
+export default rootReducer;

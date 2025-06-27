@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/config/firebase';
@@ -6,6 +6,7 @@ import { userLoggedIn, userLoggedOut } from '@/features/authSlice';
 import { useFirebaseAuthMutation } from '@/features/api/authApi';
 
 const useAuthListener = () => {
+  const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
   const [firebaseAuth] = useFirebaseAuthMutation();
 
@@ -36,10 +37,13 @@ const useAuthListener = () => {
       } else {
         dispatch(userLoggedOut());
       }
+      setLoading(false);
     });
 
     return unsubscribe;
   }, [dispatch, firebaseAuth]);
+
+  return loading;
 };
 
 export default useAuthListener;

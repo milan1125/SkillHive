@@ -16,6 +16,7 @@ import EditLecture from "./pages/instructor/lecture/EditLecture";
 import CourseDetail from "./pages/student/CourseDetail";
 import CourseProgress from "./pages/student/CourseProgress";
 import SearchPage from "./pages/student/SearchPage";
+import RouteErrorBoundary from "./components/RouteErrorBoundary";
 
 import {
   AdminRoute,
@@ -33,34 +34,35 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminCourseDetails from "./pages/admin/AdminCourseDetails";
 
-const appRouter = createBrowserRouter([
-  {
-    path: "/",
-    element: (
-      <ThemeProvider>
-        <AuthenticatedUser>
-          <Landing />
-        </AuthenticatedUser>
-      </ThemeProvider>
-    ),
-  },
-  {
-    path: "/login",
-    element: (
-      <ThemeProvider>
-        <AuthenticatedUser>
-          <Login />
-        </AuthenticatedUser>
-      </ThemeProvider>
-    ),
-  },
-  {
-    path: "/",
-    element: (
-      <ThemeProvider>
-        <MainLayout />
-      </ThemeProvider>
-    ),
+const appRouter = createBrowserRouter(
+  [
+    {
+      path: "/",
+      element: (
+        <ThemeProvider>
+          <AuthenticatedUser>
+            <Landing />
+          </AuthenticatedUser>
+        </ThemeProvider>
+      ),
+    },
+    {
+      path: "/login",
+      element: (
+        <ThemeProvider>
+          <AuthenticatedUser>
+            <Login />
+          </AuthenticatedUser>
+        </ThemeProvider>
+      ),
+    },
+    {
+      path: "/",
+      element: (
+        <ThemeProvider>
+          <MainLayout />
+        </ThemeProvider>
+      ),
     children: [
       {
         path: "courses",
@@ -181,6 +183,14 @@ const appRouter = createBrowserRouter([
         ],
       },
     ],
+  },
+  {
+    path: "*",
+    element: (
+      <ThemeProvider>
+        <RouteErrorBoundary />
+      </ThemeProvider>
+    ),
   },
 ]);
 
