@@ -654,8 +654,11 @@ export const getAdminCourseDetails = async (req, res) => {
             });
         }
         
-        // Get enrollment details
-        const enrollments = await CoursePurchase.find({ courseId })
+        // Get enrollment details (only completed purchases)
+        const enrollments = await CoursePurchase.find({ 
+            courseId, 
+            status: 'completed' 
+        })
             .populate('userId', 'name email createdAt')
             .sort({ createdAt: -1 });
         
