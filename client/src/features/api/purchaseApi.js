@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { auth } from "@/config/firebase";
 
 const COURSE_PURCHASE_API = "http://localhost:8080/api/v1/purchase";
 
@@ -7,6 +8,18 @@ export const purchaseApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: COURSE_PURCHASE_API,
     credentials: "include",
+    prepareHeaders: async (headers) => {
+      try {
+        const user = auth.currentUser;
+        if (user) {
+          const token = await user.getIdToken();
+          headers.set('Authorization', `Bearer ${token}`);
+        }
+      } catch (error) {
+        console.error('Error getting Firebase token:', error);
+      }
+      return headers;
+    }
   }),
   endpoints: (builder) => ({
     createCheckoutSession: builder.mutation({

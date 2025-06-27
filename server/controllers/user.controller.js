@@ -1,95 +1,11 @@
 import {User} from "../models/user.model.js";
-import bcrypt from "bcryptjs";
-import { generateToken } from "../utils/generateToken.js";
 import { deleteMediaFromCloudinary, uploadMedia } from "../utils/cloudinary.js";
 import { Course } from "../models/course.model.js";
 import { CoursePurchase } from "../models/coursePurchase.model.js";
 
-export const register = async (req,res) => {
-    try {
-       
-        const {name, email, password} = req.body; // patel214
-        if(!name || !email || !password){
-            return res.status(400).json({
-                success:false,
-                message:"Please fill in all required fields to create your account."
-            })
-        }
-        const user = await User.findOne({email});
-        if(user){
-            return res.status(400).json({
-                success:false,
-                message:"An account with this email already exists. Please try logging in instead."
-            })
-        }
-        const hashedPassword = await bcrypt.hash(password, 10);
-        await User.create({
-            name,
-            email,
-            password:hashedPassword
-        });
-        return res.status(201).json({
-            success:true,
-            message:"🎉 Welcome to SkillHive! Your account has been created successfully."
-        })
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({
-            success:false,
-            message:"Something went wrong while creating your account. Please try again."
-        })
-    }
-}
-export const login = async (req,res) => {
-    try {
-        const {email, password} = req.body;
-        if(!email || !password){
-            return res.status(400).json({
-                success:false,
-                message:"Please enter both email and password to sign in."
-            })
-        }
-        const user = await User.findOne({email});
-        if(!user){
-            return res.status(400).json({
-                success:false,
-                message:"No account found with this email address. Please check your email or sign up."
-            })
-        }
-        const isPasswordMatch = await bcrypt.compare(password, user.password);
-        if(!isPasswordMatch){
-            return res.status(400).json({
-                success:false,
-                message:"Incorrect password. Please check your password and try again."
-            });
-        }
-        generateToken(res, user, `🎊 Welcome back, ${user.name}! Ready to continue learning?`);
-
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({
-            success:false,
-            message:"Something went wrong while signing you in. Please try again."
-        })
-    }
-}
-export const logout = async (_,res) => {
-    try {
-        return res.status(200).cookie("token", "", {maxAge:0}).json({
-            message:"Logged out successfully.",
-            success:true
-        })
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({
-            success:false,
-            message:"Failed to logout"
-        }) 
-    }
-}
 export const getUserProfile = async (req,res) => {
     try {
-        const userId = req.id;
+        const userId = req.user._id;
         const user = await User.findById(userId).select("-password").populate("enrolledCourses");
         if(!user){
             return res.status(404).json({
@@ -111,7 +27,7 @@ export const getUserProfile = async (req,res) => {
 }
 export const updateProfile = async (req,res) => {
     try {
-        const userId = req.id;
+        const userId = req.user._id;
         const {name} = req.body;
         const profilePhoto = req.file;
 
@@ -252,7 +168,7 @@ export const deleteUser = async (req, res) => {
         }
         
         // Prevent admin from deleting themselves
-        if (userId === req.id) {
+        if (userId === req.user._id.toString()) {
             return res.status(400).json({
                 success: false,
                 message: "Cannot delete your own account"
@@ -308,7 +224,7 @@ export const getUserStats = async (req, res) => {
 
 export const requestInstructorRole = async (req, res) => {
     try {
-        const userId = req.id; // from isAuthenticated middleware
+        const userId = req.user._id; // from verifyFirebaseToken middleware
         
         const user = await User.findById(userId).select("-password");
         if (!user) {

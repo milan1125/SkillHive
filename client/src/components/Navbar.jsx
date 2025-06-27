@@ -24,18 +24,38 @@ import {
 } from "./ui/sheet";
 import { Separator } from "./ui/separator";
 import { Link, useNavigate } from "react-router-dom";
-import { useLogoutUserMutation } from "@/features/api/authApi";
+import { useFirebaseLogoutMutation } from "@/features/api/authApi";
+import { signOutUser } from "@/services/authService";
 import { toast } from "sonner";
 import { useSelector } from "react-redux";
 
 const Navbar = () => {
   const { user } = useSelector((store) => store.auth);
-  const [logoutUser, { data, isSuccess }] = useLogoutUserMutation();
+  const [firebaseLogout] = useFirebaseLogoutMutation();
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   
   const logoutHandler = async () => {
-    await logoutUser();
+    try {
+      // Sign out from Firebase
+      const firebaseResult = await signOutUser();
+      
+      // Sign out from backend
+      await firebaseLogout();
+      
+      if (firebaseResult.success) {
+        toast.success("👋 You've been logged out successfully!", {
+          description: "See you again soon!",
+          duration: 3000,
+        });
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast.error("Logout failed", {
+        description: "Please try again.",
+        duration: 3000,
+      });
+    }
   };
 
   const handleSearch = (e) => {
@@ -44,16 +64,6 @@ const Navbar = () => {
       navigate(`/course/search?query=${encodeURIComponent(searchQuery)}`);
     }
   };
-
-  useEffect(() => {
-    if (isSuccess) {
-      toast.success(data?.message || "👋 You've been logged out successfully!", {
-        description: "Thanks for using SkillHive. You can log back in anytime to continue learning.",
-        duration: 3000,
-      });
-      navigate("/login");
-    }
-  }, [isSuccess]);
 
   return (
     <div className="h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 fixed top-0 left-0 right-0 z-50 shadow-sm backdrop-blur-lg bg-white/95 dark:bg-gray-900/95">

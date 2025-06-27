@@ -8,7 +8,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export const createCheckoutSession = async (req, res) => {
   try {
-    const userId = req.id;
+    const userId = req.user._id;
     const { courseId } = req.body;
 
     const course = await Course.findById(courseId);
@@ -42,8 +42,8 @@ export const createCheckoutSession = async (req, res) => {
       success_url: `http://localhost:5173/course-progress/${courseId}`, // once payment successful redirect to course progress page
       cancel_url: `http://localhost:5173/course-detail/${courseId}`,
       metadata: {
-        courseId: courseId,
-        userId: userId,
+        courseId: courseId.toString(),
+        userId: userId.toString(),
       },
       shipping_address_collection: {
         allowed_countries: ["IN"], // Optionally restrict allowed countries
@@ -141,26 +141,34 @@ export const stripeWebhook = async (req, res) => {
 export const getCourseDetailWithPurchaseStatus = async (req, res) => {
   try {
     const { courseId } = req.params;
-    const userId = req.id;
+    const userId = req.user._id;
 
-    const course = await Course.findById(courseId)
-      .populate({ path: "creator" })
-      .populate({ path: "lectures" });
-
-    // Only consider completed purchases
-    const purchased = await CoursePurchase.findOne({ userId, courseId, status: "completed" });
-    console.log(purchased);
-
+    const course = await Course.findById(courseId).populate('creator', 'name');
     if (!course) {
-      return res.status(404).json({ message: "course not found!" });
+      return res.status(404).json({
+        success: false,
+        message: "Course not found"
+      });
     }
 
+    // Check if user has purchased this course
+    const purchased = await CoursePurchase.findOne({
+      userId,
+      courseId,
+      status: "completed"
+    });
+
     return res.status(200).json({
+      success: true,
       course,
-      purchased: !!purchased, // true if completed purchase, false otherwise
+      purchased: !!purchased
     });
   } catch (error) {
     console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to get course details"
+    });
   }
 };
 

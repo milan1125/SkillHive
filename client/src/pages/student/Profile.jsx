@@ -15,16 +15,16 @@ import { Loader2, User, Mail, Shield, Edit, BookOpen } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import Course from "./Course";
 import {
-  useLoadUserQuery,
   useUpdateUserMutation,
 } from "@/features/api/authApi";
+import { useSelector } from "react-redux";
 import { toast } from "sonner";
 
 const Profile = () => {
   const [name, setName] = useState("");
   const [profilePhoto, setProfilePhoto] = useState("");
 
-  const { data, isLoading, refetch } = useLoadUserQuery();
+  const { user, isAuthenticated } = useSelector((store) => store.auth);
   const [
     updateUser,
     {
@@ -36,7 +36,7 @@ const Profile = () => {
     },
   ] = useUpdateUserMutation();
 
-  console.log(data);
+  console.log(user);
 
   const onChangeHandler = (e) => {
     const file = e.target.files?.[0];
@@ -51,26 +51,21 @@ const Profile = () => {
   };
 
   useEffect(() => {
-    refetch();
-  }, []);
-
-  useEffect(() => {
     if (isSuccess) {
-      refetch();
-      toast.success(data.message || "✅ Profile updated successfully!", {
+      toast.success(updateUserData?.message || "✅ Profile updated successfully!", {
         description: "Your profile information has been saved.",
         duration: 3000,
       });
     }
     if (isError) {
-      toast.error("❌ " + (error.message || "Failed to update profile"), {
+      toast.error("❌ " + (error?.data?.message || "Failed to update profile"), {
         description: "Please check your information and try again.",
         duration: 4000,
       });
     }
   }, [error, updateUserData, isSuccess, isError]);
 
-  if (isLoading) return (
+  if (!user) return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50/30 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-blue-900 flex items-center justify-center">
       <div className="flex flex-col items-center space-y-4">
         <div className="w-16 h-16 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin"></div>
@@ -78,8 +73,6 @@ const Profile = () => {
       </div>
     </div>
   );
-
-  const user = data && data.user;
 
   console.log(user);
   

@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { auth } from "@/config/firebase";
 
-const USERS_API = "http://localhost:8000/api/v1/user";
+const USERS_API = "http://localhost:8080/api/v1/user";
 
 export const userApi = createApi({
   reducerPath: "userApi",
@@ -8,6 +9,18 @@ export const userApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: USERS_API,
     credentials: "include",
+    prepareHeaders: async (headers) => {
+      try {
+        const user = auth.currentUser;
+        if (user) {
+          const token = await user.getIdToken();
+          headers.set('Authorization', `Bearer ${token}`);
+        }
+      } catch (error) {
+        console.error('Error getting Firebase token:', error);
+      }
+      return headers;
+    }
   }),
   endpoints: (builder) => ({
     // Admin endpoints for user management

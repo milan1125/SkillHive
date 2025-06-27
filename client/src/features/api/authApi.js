@@ -1,5 +1,6 @@
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 import { userLoggedIn, userLoggedOut } from "../authSlice";
+import { auth } from "@/config/firebase";
 
 const USER_API = "http://localhost:8080/api/v1/user/"
 
@@ -7,44 +8,21 @@ export const authApi = createApi({
     reducerPath:"authApi",
     baseQuery:fetchBaseQuery({
         baseUrl:USER_API,
-        credentials:'include'
+        credentials:'include',
+        prepareHeaders: async (headers) => {
+            try {
+                const user = auth.currentUser;
+                if (user) {
+                    const token = await user.getIdToken();
+                    headers.set('Authorization', `Bearer ${token}`);
+                }
+            } catch (error) {
+                console.error('Error getting Firebase token:', error);
+            }
+            return headers;
+        }
     }),
     endpoints: (builder) => ({
-        registerUser: builder.mutation({
-            query: (inputData) => ({
-                url:"register",
-                method:"POST",
-                body:inputData
-            })
-        }),
-        loginUser: builder.mutation({
-            query: (inputData) => ({
-                url:"login",
-                method:"POST",
-                body:inputData
-            }),
-            async onQueryStarted(_, {queryFulfilled, dispatch}) {
-                try {
-                    const result = await queryFulfilled;
-                    dispatch(userLoggedIn({user:result.data.user}));
-                } catch (error) {
-                    console.log(error);
-                }
-            }
-        }),
-        logoutUser: builder.mutation({
-            query: () => ({
-                url:"logout",
-                method:"GET"
-            }),
-            async onQueryStarted(_, {queryFulfilled, dispatch}) {
-                try { 
-                    dispatch(userLoggedOut());
-                } catch (error) {
-                    console.log(error);
-                }
-            }
-        }),
         loadUser: builder.query({
             query: () => ({
                 url:"profile",
@@ -80,14 +58,51 @@ export const authApi = createApi({
                     console.log(error);
                 }
             }
+        }),
+        // Firebase authentication endpoints
+        firebaseAuth: builder.mutation({
+            query: (authData) => ({
+                url:"auth/firebase",
+                method:"POST",
+                body:authData
+            }),
+            async onQueryStarted(_, {queryFulfilled, dispatch}) {
+                try {
+                    const result = await queryFulfilled;
+                    dispatch(userLoggedIn({user:result.data.user}));
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+        }),
+        firebaseSignup: builder.mutation({
+            query: (signupData) => ({
+                url:"auth/firebase/signup",
+                method:"POST",
+                body:signupData
+            })
+        }),
+        firebaseLogout: builder.mutation({
+            query: () => ({
+                url:"auth/firebase/logout",
+                method:"POST"
+            }),
+            async onQueryStarted(_, {queryFulfilled, dispatch}) {
+                try { 
+                    dispatch(userLoggedOut());
+                } catch (error) {
+                    console.log(error);
+                }
+            }
         })
     })
 });
+
 export const {
-    useRegisterUserMutation,
-    useLoginUserMutation,
-    useLogoutUserMutation,
     useLoadUserQuery,
     useUpdateUserMutation,
-    useRequestInstructorRoleMutation
+    useRequestInstructorRoleMutation,
+    useFirebaseAuthMutation,
+    useFirebaseSignupMutation,
+    useFirebaseLogoutMutation
 } = authApi;

@@ -14,7 +14,7 @@ export const createCourse = async (req,res) => {
         const course = await Course.create({
             courseTitle,
             category,
-            creator:req.id
+            creator:req.user._id
         });
 
         return res.status(201).json({
@@ -90,7 +90,7 @@ export const getPublishedCourse = async (_,res) => {
 }
 export const getCreatorCourses = async (req,res) => {
     try {
-        const userId = req.id;
+        const userId = req.user._id;
         const courses = await Course.find({creator:userId});
         if(!courses){
             return res.status(404).json({
@@ -361,22 +361,19 @@ export const getAllCoursesForAdmin = async (req, res) => {
         if (search) {
             query.$or = [
                 { courseTitle: { $regex: search, $options: 'i' } },
-                { subTitle: { $regex: search, $options: 'i' } },
-                { category: { $regex: search, $options: 'i' } }
+                { subTitle: { $regex: search, $options: 'i' } }
             ];
         }
         if (category && category !== 'all') {
             query.category = category;
         }
-        if (status === 'published') {
-            query.isPublished = true;
-        } else if (status === 'draft') {
-            query.isPublished = false;
+        if (status && status !== 'all') {
+            query.isPublished = status === 'published';
         }
 
         const courses = await Course.find(query)
-            .populate('creator', 'name email photoUrl')
-            .populate('enrolledStudents', 'name email')
+            .populate('creator', 'name email')
+            .populate('lectures')
             .skip(skip)
             .limit(parseInt(limit))
             .sort({ createdAt: -1 });
@@ -417,16 +414,13 @@ export const toggleCourseStatus = async (req, res) => {
             });
         }
         
-        const updatedCourse = await Course.findByIdAndUpdate(
-            courseId,
-            { isPublished: !course.isPublished },
-            { new: true }
-        ).populate('creator', 'name email');
+        course.isPublished = !course.isPublished;
+        await course.save();
         
         return res.status(200).json({
             success: true,
-            course: updatedCourse,
-            message: `Course ${updatedCourse.isPublished ? 'published' : 'unpublished'} successfully`
+            course,
+            message: `Course ${course.isPublished ? 'published' : 'unpublished'} successfully`
         });
     } catch (error) {
         console.log(error);
@@ -449,23 +443,26 @@ export const deleteCourseByAdmin = async (req, res) => {
             });
         }
         
-        // Delete course thumbnail from cloudinary
+        // Delete course thumbnail from cloudinary if exists
         if (course.courseThumbnail) {
             const publicId = course.courseThumbnail.split("/").pop().split(".")[0];
             await deleteMediaFromCloudinary(publicId);
         }
         
-        // Delete all lectures and their videos
+        // Delete all lecture videos from cloudinary
         if (course.lectures && course.lectures.length > 0) {
             for (const lecture of course.lectures) {
                 if (lecture.videoUrl) {
                     const publicId = lecture.videoUrl.split("/").pop().split(".")[0];
                     await deleteVideoFromCloudinary(publicId);
                 }
-                await Lecture.findByIdAndDelete(lecture._id);
             }
         }
         
+        // Delete all lectures
+        await Lecture.deleteMany({ _id: { $in: course.lectures } });
+        
+        // Delete the course
         await Course.findByIdAndDelete(courseId);
         
         return res.status(200).json({

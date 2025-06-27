@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { auth } from "@/config/firebase";
 
 const ADMIN_API = "http://localhost:8080/api/v1/";
 
@@ -6,7 +7,19 @@ export const adminApi = createApi({
     reducerPath: "adminApi",
     baseQuery: fetchBaseQuery({
         baseUrl: ADMIN_API,
-        credentials: 'include'
+        credentials: 'include',
+        prepareHeaders: async (headers) => {
+            try {
+                const user = auth.currentUser;
+                if (user) {
+                    const token = await user.getIdToken();
+                    headers.set('Authorization', `Bearer ${token}`);
+                }
+            } catch (error) {
+                console.error('Error getting Firebase token:', error);
+            }
+            return headers;
+        }
     }),
     tagTypes: ['User', 'Course', 'Stats'],
     endpoints: (builder) => ({

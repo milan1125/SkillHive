@@ -1,9 +1,6 @@
 import express from "express";
 import { 
     getUserProfile, 
-    login, 
-    logout, 
-    register, 
     updateProfile, 
     getAllUsers, 
     updateUserRole, 
@@ -16,32 +13,40 @@ import {
     getAllEnrollments,
     getAdminCourseDetails
 } from "../controllers/user.controller.js";
-import isAuthenticated from "../middlewares/isAuthenticated.js";
-import isAdmin from "../middlewares/isAdmin.js";
+import { 
+    firebaseAuth, 
+    firebaseSignup, 
+    firebaseLogout 
+} from "../controllers/firebaseAuth.controller.js";
+import verifyFirebaseToken from "../middlewares/verifyFirebaseToken.js";
+import verifyFirebaseAdmin from "../middlewares/verifyFirebaseAdmin.js";
 import upload from "../utils/multer.js";
 
 const router = express.Router();
 
-router.route("/register").post(register);
-router.route("/login").post(login);
-router.route("/logout").get(logout);
-router.route("/profile").get(isAuthenticated, getUserProfile);
-router.route("/profile/update").put(isAuthenticated, upload.single("profilePhoto"), updateProfile);
+// Firebase authentication routes (only these are needed now)
+router.route("/auth/firebase").post(firebaseAuth);
+router.route("/auth/firebase/signup").post(firebaseSignup);
+router.route("/auth/firebase/logout").post(firebaseLogout);
+
+// Profile routes (Firebase authentication required)
+router.route("/profile").get(verifyFirebaseToken, getUserProfile);
+router.route("/profile/update").put(verifyFirebaseToken, upload.single("profilePhoto"), updateProfile);
 
 // User role management
-router.route("/request-instructor").put(isAuthenticated, requestInstructorRole);
+router.route("/request-instructor").put(verifyFirebaseToken, requestInstructorRole);
 
 // Admin routes for user management
-router.route("/admin/users").get(isAdmin, getAllUsers);
-router.route("/admin/users/stats").get(isAdmin, getUserStats);
-router.route("/admin/users/:userId/role").put(isAdmin, updateUserRole);
-router.route("/admin/users/:userId").delete(isAdmin, deleteUser);
+router.route("/admin/users").get(verifyFirebaseAdmin, getAllUsers);
+router.route("/admin/users/stats").get(verifyFirebaseAdmin, getUserStats);
+router.route("/admin/users/:userId/role").put(verifyFirebaseAdmin, updateUserRole);
+router.route("/admin/users/:userId").delete(verifyFirebaseAdmin, deleteUser);
 
 // Admin analytics routes
-router.route("/admin/analytics/enrollments").get(isAdmin, getEnrollmentAnalytics);
-router.route("/admin/analytics/revenue").get(isAdmin, getRevenueAnalytics);
-router.route("/admin/analytics/top-courses").get(isAdmin, getTopPerformingCourses);
-router.route("/admin/enrollments").get(isAdmin, getAllEnrollments);
-router.route("/admin/courses/:courseId/details").get(isAdmin, getAdminCourseDetails);
+router.route("/admin/analytics/enrollments").get(verifyFirebaseAdmin, getEnrollmentAnalytics);
+router.route("/admin/analytics/revenue").get(verifyFirebaseAdmin, getRevenueAnalytics);
+router.route("/admin/analytics/top-courses").get(verifyFirebaseAdmin, getTopPerformingCourses);
+router.route("/admin/enrollments").get(verifyFirebaseAdmin, getAllEnrollments);
+router.route("/admin/courses/:courseId/details").get(verifyFirebaseAdmin, getAdminCourseDetails);
 
 export default router;
