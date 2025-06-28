@@ -289,7 +289,6 @@ const Courses = () => {
 };
 
 export default Courses;
-
 const CourseSkeleton = () => {
   return (
     <div className="animate-pulse group">
@@ -338,3 +337,4 @@ const CourseSkeleton = () => {
     </div>
   );
 };
+
