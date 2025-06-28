@@ -5,16 +5,31 @@ import CourseTab from "./CourseTab";
 
 const EditCourse = () => {
   return (
-    <div className="flex-1">
-      <div className="flex items-center justify-between mb-5">
-        <h1 className="font-bold text-xl">
-          Add detail information regarding course
-        </h1>
-        <Link to="lecture">
-          <Button className="hover:text-blue-600" variant="link">Go to lectures page</Button>
-        </Link>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+              Edit Course Details
+            </h1>
+            <p className="text-gray-600 dark:text-gray-300 mt-1">
+              Update your course information and manage content
+            </p>
+          </div>
+          <Link to="lecture">
+            <Button 
+              variant="outline"
+              className="hover:bg-primary hover:text-white border-primary text-primary transition-colors duration-200"
+            >
+              📚 Manage Lectures
+            </Button>
+          </Link>
+        </div>
+        
+        {/* Course Tab Content */}
+        <CourseTab/>
       </div>
-      <CourseTab/>
     </div>
   );
 };

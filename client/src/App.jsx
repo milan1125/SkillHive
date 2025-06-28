@@ -13,6 +13,9 @@ import AddCourse from "./pages/instructor/course/AddCourse";
 import EditCourse from "./pages/instructor/course/EditCourse";
 import CreateLecture from "./pages/instructor/lecture/CreateLecture";
 import EditLecture from "./pages/instructor/lecture/EditLecture";
+import Students from "./pages/instructor/Students";
+import Analytics from "./pages/instructor/Analytics";
+import Messages from "./pages/instructor/Messages";
 import CourseDetail from "./pages/student/CourseDetail";
 import CourseProgress from "./pages/student/CourseProgress";
 import SearchPage from "./pages/student/SearchPage";
@@ -143,6 +146,18 @@ const appRouter = createBrowserRouter(
           {
             path: "course/:courseId/lecture/:lectureId",
             element: <EditLecture />,
+          },
+          {
+            path: "students",
+            element: <Students />,
+          },
+          {
+            path: "analytics",
+            element: <Analytics />,
+          },
+          {
+            path: "messages",
+            element: <Messages />,
           },
         ],
       },

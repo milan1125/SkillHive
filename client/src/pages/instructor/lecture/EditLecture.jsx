@@ -7,19 +7,36 @@ import LectureTab from "./LectureTab";
 const EditLecture = () => {
   const params = useParams();
   const courseId = params.courseId;
+  
   return (
-    <div>
-      <div className="flex items-center justify-between mb-5">
-        <div className="flex items-center gap-2">
-          <Link to={`/instructor/course/${courseId}/lecture`}>
-            <Button size="icon" variant="outline" className="rounded-full">
-              <ArrowLeft size={16} />
-            </Button>
-          </Link>
-          <h1 className="font-bold text-xl">Update Your Lecture</h1>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <Link to={`/instructor/course/${courseId}/lecture`}>
+              <Button 
+                size="icon" 
+                variant="outline" 
+                className="rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+              >
+                <ArrowLeft size={16} />
+              </Button>
+            </Link>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                Edit Lecture
+              </h1>
+              <p className="text-gray-600 dark:text-gray-300 mt-1">
+                Update lecture content, video, and settings
+              </p>
+            </div>
+          </div>
         </div>
+        
+        {/* Lecture Tab Content */}
+        <LectureTab />
       </div>
-      <LectureTab />
     </div>
   );
 };

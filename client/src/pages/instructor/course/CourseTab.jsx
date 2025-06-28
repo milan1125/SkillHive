@@ -169,149 +169,217 @@ const CourseTab = () => {
   if(courseByIdLoading) return <h1>Loading...</h1>
  
   return (
-    <Card>
-      <CardHeader className="flex flex-row justify-between">
-        <div>
-          <CardTitle>Basic Course Information</CardTitle>
-          <CardDescription>
-            Make changes to your courses here. Click save when you're done.
-          </CardDescription>
-        </div>
-        <div className="space-x-2">
-          <Button 
-            disabled={courseByIdLoading || !courseByIdData?.course || isPublishing || (!courseByIdData?.course.isPublished && !isCourseReadyForPublishing())} 
-            variant={!courseByIdData?.course.isPublished && !isCourseReadyForPublishing() ? "secondary" : "outline"}
-            onClick={()=> publishStatusHandler(courseByIdData?.course.isPublished ? "false" : "true")}
-            title={!courseByIdData?.course.isPublished && !isCourseReadyForPublishing() ? "Complete all required fields and add lectures to publish" : ""}
-          >
-            {isPublishing ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {courseByIdData?.course.isPublished ? "Unpublishing..." : "Publishing..."}
-              </>
-            ) : courseByIdLoading ? "Loading..." : courseByIdData?.course.isPublished ? "Unpublish" : "Publish"}
-          </Button>
-          <Button>Remove Course</Button>
+    <Card className="border-gray-200 dark:border-gray-700 shadow-sm">
+      <CardHeader className="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+          <div>
+            <CardTitle className="text-xl text-gray-900 dark:text-white">
+              Course Information
+            </CardTitle>
+            <CardDescription className="text-gray-600 dark:text-gray-300">
+              Update your course details and settings. All fields marked with * are required.
+            </CardDescription>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button 
+              disabled={courseByIdLoading || !courseByIdData?.course || isPublishing || (!courseByIdData?.course.isPublished && !isCourseReadyForPublishing())} 
+              variant={courseByIdData?.course.isPublished ? "destructive" : "default"}
+              onClick={()=> publishStatusHandler(courseByIdData?.course.isPublished ? "false" : "true")}
+              title={!courseByIdData?.course.isPublished && !isCourseReadyForPublishing() ? "Complete all required fields and add lectures to publish" : ""}
+              className="min-w-[120px]"
+            >
+              {isPublishing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {courseByIdData?.course.isPublished ? "Unpublishing..." : "Publishing..."}
+                </>
+              ) : courseByIdLoading ? "Loading..." : courseByIdData?.course.isPublished ? "📢 Unpublish" : "🚀 Publish"}
+            </Button>
+            <Button 
+              variant="outline" 
+              className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 border-red-200 hover:border-red-300"
+            >
+              🗑️ Remove Course
+            </Button>
+          </div>
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4 mt-5">
-          <div>
-            <Label>Title</Label>
-            <Input
-              type="text"
-              name="courseTitle"
-              value={input.courseTitle}
-              onChange={changeEventHandler}
-              placeholder="Ex. Fullstack developer"
-            />
-          </div>
-          <div>
-            <Label>Subtitle</Label>
-            <Input
-              type="text"
-              name="subTitle"
-              value={input.subTitle}
-              onChange={changeEventHandler}
-              placeholder="Ex. Become a Fullstack developer from zero to hero in 2 months"
-            />
-          </div>
-          <div>
-            <Label>Description</Label>
-            <RichTextEditor input={input} setInput={setInput} />
-          </div>
-          <div className="flex items-center gap-5">
-            <div>
-              <Label>Category</Label>
-              <Select
-                defaultValue={input.category}
-                onValueChange={selectCategory}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select a category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Category</SelectLabel>
-                    <SelectItem value="Next JS">Next JS</SelectItem>
-                    <SelectItem value="Data Science">Data Science</SelectItem>
-                    <SelectItem value="Frontend Development">
-                      Frontend Development
-                    </SelectItem>
-                    <SelectItem value="Fullstack Development">
-                      Fullstack Development
-                    </SelectItem>
-                    <SelectItem value="MERN Stack Development">
-                      MERN Stack Development
-                    </SelectItem>
-                    <SelectItem value="Javascript">Javascript</SelectItem>
-                    <SelectItem value="Python">Python</SelectItem>
-                    <SelectItem value="Docker">Docker</SelectItem>
-                    <SelectItem value="MongoDB">MongoDB</SelectItem>
-                    <SelectItem value="HTML">HTML</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+      <CardContent className="p-6">
+        <div className="grid gap-6 lg:gap-8">
+          {/* Basic Information Section */}
+          <div className="space-y-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">
+              Basic Information
+            </h3>
+            
+            <div className="grid gap-4 lg:gap-6">
+              <div>
+                <Label className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  Course Title *
+                </Label>
+                <Input
+                  type="text"
+                  name="courseTitle"
+                  value={input.courseTitle}
+                  onChange={changeEventHandler}
+                  placeholder="e.g., Complete Full Stack Development Course"
+                  className="mt-1.5 focus:ring-2 focus:ring-primary focus:border-primary"
+                />
+              </div>
+              
+              <div>
+                <Label className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  Course Subtitle *
+                </Label>
+                <Input
+                  type="text"
+                  name="subTitle"
+                  value={input.subTitle}
+                  onChange={changeEventHandler}
+                  placeholder="e.g., Master modern web development from beginner to expert level"
+                  className="mt-1.5 focus:ring-2 focus:ring-primary focus:border-primary"
+                />
+              </div>
+              
+              <div>
+                <Label className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  Course Description *
+                </Label>
+                <div className="mt-1.5">
+                  <RichTextEditor input={input} setInput={setInput} />
+                </div>
+              </div>
             </div>
-            <div>
-              <Label>Course Level</Label>
-              <Select
-                defaultValue={input.courseLevel}
-                onValueChange={selectCourseLevel}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select a course level" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Course Level</SelectLabel>
-                    <SelectItem value="Beginner">Beginner</SelectItem>
-                    <SelectItem value="Medium">Medium</SelectItem>
-                    <SelectItem value="Advance">Advance</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+          </div>
+
+          {/* Course Settings Section */}
+          <div className="space-y-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">
+              Course Settings
+            </h3>
+            
+            <div className="grid gap-4 lg:grid-cols-3 lg:gap-6">
+              <div>
+                <Label className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  Category *
+                </Label>
+                <Select
+                  defaultValue={input.category}
+                  onValueChange={selectCategory}
+                >
+                  <SelectTrigger className="mt-1.5 focus:ring-2 focus:ring-primary focus:border-primary">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Course Categories</SelectLabel>
+                      <SelectItem value="Next JS">Next.js</SelectItem>
+                      <SelectItem value="Data Science">Data Science</SelectItem>
+                      <SelectItem value="Frontend Development">Frontend Development</SelectItem>
+                      <SelectItem value="Fullstack Development">Fullstack Development</SelectItem>
+                      <SelectItem value="MERN Stack Development">MERN Stack Development</SelectItem>
+                      <SelectItem value="Javascript">JavaScript</SelectItem>
+                      <SelectItem value="Python">Python</SelectItem>
+                      <SelectItem value="Docker">Docker</SelectItem>
+                      <SelectItem value="MongoDB">MongoDB</SelectItem>
+                      <SelectItem value="HTML">HTML & CSS</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  Difficulty Level *
+                </Label>
+                <Select
+                  defaultValue={input.courseLevel}
+                  onValueChange={selectCourseLevel}
+                >
+                  <SelectTrigger className="mt-1.5 focus:ring-2 focus:ring-primary focus:border-primary">
+                    <SelectValue placeholder="Select level" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Difficulty Level</SelectLabel>
+                      <SelectItem value="Beginner">🟢 Beginner</SelectItem>
+                      <SelectItem value="Medium">🟡 Intermediate</SelectItem>
+                      <SelectItem value="Advance">🔴 Advanced</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  Price (₹) *
+                </Label>
+                <Input
+                  type="number"
+                  name="coursePrice"
+                  value={input.coursePrice}
+                  onChange={changeEventHandler}
+                  placeholder="0"
+                  min="0"
+                  className="mt-1.5 focus:ring-2 focus:ring-primary focus:border-primary"
+                />
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Set to 0 for free course</p>
+              </div>
             </div>
+          </div>
+
+          {/* Course Media Section */}
+          <div className="space-y-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">
+              Course Media
+            </h3>
+            
             <div>
-              <Label>Price in (INR)</Label>
+              <Label className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                Course Thumbnail
+              </Label>
               <Input
-                type="number"
-                name="coursePrice"
-                value={input.coursePrice}
-                onChange={changeEventHandler}
-                placeholder="199"
-                className="w-fit"
+                type="file"
+                onChange={selectThumbnail}
+                accept="image/*"
+                className="mt-1.5 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary file:text-white hover:file:bg-primary/90"
               />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Recommended: 1280x720px, JPG or PNG format
+              </p>
+              {previewThumbnail && (
+                <div className="mt-4">
+                  <img
+                    src={previewThumbnail}
+                    className="w-64 h-36 object-cover rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm"
+                    alt="Course Thumbnail Preview"
+                  />
+                </div>
+              )}
             </div>
           </div>
-          <div>
-            <Label>Course Thumbnail</Label>
-            <Input
-              type="file"
-              onChange={selectThumbnail}
-              accept="image/*"
-              className="w-fit"
-            />
-            {previewThumbnail && (
-              <img
-                src={previewThumbnail}
-                className="e-64 my-2"
-                alt="Course Thumbnail"
-              />
-            )}
-          </div>
-          <div>
-            <Button onClick={() => navigate("/instructor/course")} variant="outline">
-              Cancel
+
+          {/* Action Buttons */}
+          <div className="flex justify-between items-center pt-6 border-t border-gray-200 dark:border-gray-700">
+            <Button 
+              onClick={() => navigate("/instructor/course")} 
+              variant="outline"
+              className="hover:bg-gray-50 dark:hover:bg-gray-700"
+            >
+              ← Back to Courses
             </Button>
-            <Button disabled={isLoading} onClick={updateCourseHandler}>
+            <Button 
+              disabled={isLoading} 
+              onClick={updateCourseHandler}
+              className="bg-primary hover:bg-primary/90 min-w-[120px]"
+            >
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Please wait
+                  Saving...
                 </>
               ) : (
-                "Save"
+                "💾 Save Changes"
               )}
             </Button>
           </div>

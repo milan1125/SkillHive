@@ -9,14 +9,14 @@ router.route("/upload-video").post(upload.single("file"), async(req,res) => {
     try {
         const result = await uploadMedia(req.file.path);
         
-        // Delete the local file after successful upload to Cloudinary
-        fs.unlink(req.file.path, (err) => {
-            if (err) {
-                console.error('Error deleting local file:', err);
-            } else {
-                console.log('Local file deleted successfully:', req.file.path);
-            }
-        });
+        // // Delete the local file after successful upload to Cloudinary
+        // fs.unlink(req.file.path, (err) => {
+        //     if (err) {
+        //         console.error('Error deleting local file:', err);
+        //     } else {
+        //         console.log('Local file deleted successfully:', req.file.path);
+        //     }
+        // });
         
         res.status(200).json({
             success:true,
