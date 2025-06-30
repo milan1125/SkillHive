@@ -20,9 +20,9 @@ import {
 } from "../controllers/firebaseAuth.controller.js";
 import verifyFirebaseToken from "../middlewares/verifyFirebaseToken.js";
 import verifyFirebaseAdmin from "../middlewares/verifyFirebaseAdmin.js";
-import upload from "../utils/multer.js";
+import {upload} from "../utils/multer.js";
 
-const   router = express.Router();
+const router = express.Router();
 
 // Firebase authentication routes (only these are needed now)
 router.route("/auth/firebase").post(firebaseAuth);
