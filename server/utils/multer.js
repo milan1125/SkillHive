@@ -16,7 +16,7 @@ import os from "os";
 //   },
 // });
 
-const storage = multer.diskStorage({
+const upload = multer.diskStorage({
   destination: os.tmpdir(),
   filename: (req, file, cb) => {
     cb(null, file.originalname);
