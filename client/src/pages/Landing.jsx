@@ -36,6 +36,7 @@ const Landing = () => {
     }
     setSearchQuery("");
   }
+  console.log("krish");
 
   const features = [
     {

@@ -22,6 +22,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/config/firebase";
 
 const Login = () => {
+  console.log("Login page loaded");
   const [signupInput, setSignupInput] = useState({
     name: "",
     email: "",
