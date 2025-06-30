@@ -208,7 +208,7 @@ const appRouter = createBrowserRouter(
     ),
   },
 ]);
-  console.log("App Router initialized");
+  // console.log("App Router initialized");
 function App() {
   return (
     <main>
