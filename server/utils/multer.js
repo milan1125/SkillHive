@@ -16,10 +16,12 @@ import os from "os";
 //   },
 // });
 
-const upload = multer.diskStorage({
+const storage = multer.diskStorage({
   destination: os.tmpdir(),
   filename: (req, file, cb) => {
     cb(null, file.originalname);
   },
 });
-export default upload
+
+
+export const upload = multer({ storage });
