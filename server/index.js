@@ -36,7 +36,9 @@ app.use("/api/v1/course", courseRoute);
 app.use("/api/v1/purchase", purchaseRoute);
 app.use("/api/v1/progress", courseProgressRoute);
 app.use("/api/v1/instructor", instructorRoute);
- 
+ app.get("/", (req, res) => {
+    res.send("Welcome to SkillHive API");
+    });
  
 app.listen(PORT, () => {
     console.log(`Server listen at port ${PORT}`);
